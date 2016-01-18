@@ -1,3 +1,4 @@
+# Author -- Patrick S. Avery -- 2016
 
 # This is so we can loop through the lower case alphabet...
 from string import ascii_lowercase

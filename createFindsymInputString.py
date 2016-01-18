@@ -1,3 +1,5 @@
+# Author -- Patrick S. Avery -- 2016
+
 """
 'crystal' should be a Crystal object
 """

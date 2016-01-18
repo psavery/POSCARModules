@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Author -- Patrick S. Avery -- 2016
+
 import sys
 import readPOSCAR
 

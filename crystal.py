@@ -1,3 +1,4 @@
+# Author -- Patrick S. Avery -- 2016
 
 class Vector3d:
   def __init__(self, x = float, y = float, z = float):

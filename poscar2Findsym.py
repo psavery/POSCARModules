@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Author -- Patrick S. Avery -- 2016
+
 import sys
 from crystal import *
 from createFindsymInputString import *
