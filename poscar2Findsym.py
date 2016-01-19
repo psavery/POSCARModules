@@ -27,9 +27,8 @@ if len(sys.argv) > 2:
 crys = readPOSCAR(sys.argv[1])
 
 if crys.cartesian:
-  print "Error: this program does not yet convert cartesian to fractional!"
-  print "Coords need to be fractional for Findsym to work"
-  sys.exit()
+  print "Coords are in cartesian. Converting them to fractional..."
+  crys.convertAtomsToFractional()
 
 inputStr = createFindsymInputString(crys, tol)
 #print "\n"

@@ -15,3 +15,4 @@ crystal = readPOSCAR.readPOSCAR(sys.argv[1])
 crystal.display()
 
 crystal.displayLatticeInfo()
+

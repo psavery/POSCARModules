@@ -73,6 +73,41 @@ class Crystal:
   def getGamma(self):
     return math.acos(self.getDotProd(0, 1) / (self.getA() * self.getB()))
 
+  def getUnitVolume(self):
+    alpha = self.getAlpha()
+    beta = self.getBeta()
+    gamma = self.getGamma()
+    return (1.0 - math.cos(alpha)**2 - math.cos(beta)**2 - math.cos(gamma)**2 \
+            + 2 * math.cos(alpha) * math.cos(beta) * math.cos(gamma)) ** (0.5)
+
+  def getVolume(self):
+    return self.getA() * self.getB() * self.getC() * self.getUnitVolume()
+
+  def convertAtomToFractional(self, atom):
+    a = self.getA()
+    b = self.getB()
+    c = self.getC()
+    alpha = self.getAlpha()
+    beta = self.getBeta()
+    gamma = self.getGamma()
+    v = self.getUnitVolume()
+    # We'll just do the matrix multiplication by hand...
+    atom.pos.x = (1.0 / a) * atom.pos.x + (-math.cos(gamma) / (a * math.sin(gamma))) * atom.pos.y + \
+                 ((math.cos(alpha) * math.cos(gamma) - math.cos(beta)) / (a * v * math.sin(gamma))) * atom.pos.z
+
+    atom.pos.y = (1.0 / (b * math.sin(gamma))) * atom.pos.y + \
+                 ((math.cos(beta) * math.cos(gamma) - math.cos(alpha)) / (b * v * math.sin(gamma))) * atom.pos.z
+
+    atom.pos.z = (math.sin(gamma) / (c * v)) * atom.pos.z
+
+  def convertAtomsToFractional(self):
+    if not self.cartesian:
+      print "convertAtomsToFractional() was called, but the coordinates are already fractional! Returning..."
+      return
+    for atom in self.atoms:
+      self.convertAtomToFractional(atom)
+    self.cartesian = False
+
   def displayAtoms(self):
     print "\nThe following are the atom positions in the crystal:"
     for atom in self.atoms:
@@ -99,6 +134,7 @@ class Crystal:
     print "Scaling factor is: ", self.scalingFactor
     print "Cartesian is: " , self.cartesian
     self.displayLattice()
+    print "Volume is: ", self.getVolume()
     self.displayAtoms()
     print "\n",
 
