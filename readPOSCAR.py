@@ -21,7 +21,8 @@ def readPOSCAR(fileName = str):
     # If the next line is not an int, assume they are atomic symbols
     symbols = []
     i = 5
-    if not lines[5].split()[0].isdigit:
+
+    if not lines[5].split()[0].isdigit():
       symbols = lines[5].split()
       i += 1
 
