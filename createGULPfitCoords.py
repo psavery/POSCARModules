@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+# Author -- Patrick Avery -- 2016
+
+# Call this while you are in a directory with VASP output subdirectories
+# It reads the OSZICAR, CONTAR, and a charges.txt file (you have to make this
+# yourself) and creates an input file for GULP fitting
+
+# charges.txt file is a "<symbol> <charge>" format as such:
+# H 0.6
+# O -1.2
+
 import os
 import sys
 sys.path.insert(0, '/home/patrick/src/customPythonModules')
