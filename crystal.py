@@ -8,6 +8,21 @@ class Vector3d:
     self.y = y
     self.z = z
 
+  def __add__(self, other):
+    x = self.x + other.x
+    y = self.y + other.y
+    z = self.z + other.z
+    return Vector3d(x,y,z)
+
+  def __sub__(self, other):
+    x = self.x - other.x
+    y = self.y - other.y
+    z = self.z - other.z
+    return Vector3d(x,y,z)
+
+  def getNorm(self):
+    return (self.x**2.0 + self.y**2.0 + self.z**2.0)**0.5
+
   def getCoordsString(self, delim = ","):
     return str(self.x) + delim + str(self.y) + delim + str(self.z)
 
@@ -22,6 +37,8 @@ class Atom:
   def display(self):
     print "  For " + self.symbol + ", coords are: ",
     self.pos.display()
+
+
 
 class Crystal:
   """
@@ -107,6 +124,29 @@ class Crystal:
     for atom in self.atoms:
       self.convertAtomToFractional(atom)
     self.cartesian = False
+
+  def convertAtomToCartesian(self, atom):
+    a = self.getA()
+    b = self.getB()
+    c = self.getC()
+    alpha = self.getAlpha()
+    beta = self.getBeta()
+    gamma = self.getGamma()
+    v = self.getUnitVolume()
+
+    # This is ugly, but we're just gonna do the matrix multiplication by
+    # hand.
+    atom.pos.x = a * atom.pos.x + b * math.cos(gamma) * atom.pos.y + c * math.cos(beta) * atom.pos.z
+    atom.pos.y = b * math.sin(gamma) * atom.pos.y + c * (math.cos(alpha) - math.cos(beta) * math.cos(gamma)) / math.sin(gamma) * atom.pos.z
+    atom.pos.z = c * v / math.sin(gamma) * atom.pos.z
+
+  def convertAtomsToCartesian(self):
+    if self.cartesian:
+      print "convertAtomsToCartesian() was called, but the coordinates are already cartesian! Returning..."
+      return
+    for atom in self.atoms:
+      self.convertAtomToCartesian(atom)
+    self.cartesian = True
 
   def displayAtoms(self):
     print "\nThe following are the atom positions in the crystal:"
