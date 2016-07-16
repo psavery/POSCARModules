@@ -16,3 +16,4 @@ crystal.display()
 
 crystal.displayLatticeInfo()
 
+crystal.displayDistances()

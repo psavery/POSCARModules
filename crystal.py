@@ -1,6 +1,7 @@
 # Author -- Patrick S. Avery -- 2016
 
 import math
+import copy
 
 class Vector3d:
   def __init__(self, x = float, y = float, z = float):
@@ -20,7 +21,7 @@ class Vector3d:
     z = self.z - other.z
     return Vector3d(x,y,z)
 
-  def getNorm(self):
+  def norm(self):
     return (self.x**2.0 + self.y**2.0 + self.z**2.0)**0.5
 
   def getCoordsString(self, delim = ","):
@@ -100,22 +101,25 @@ class Crystal:
   def getVolume(self):
     return self.getA() * self.getB() * self.getC() * self.getUnitVolume()
 
-  def convertAtomToFractional(self, atom):
+  def toFractional(self, v):
     a = self.getA()
     b = self.getB()
     c = self.getC()
     alpha = self.getAlpha()
     beta = self.getBeta()
     gamma = self.getGamma()
-    v = self.getUnitVolume()
+    vol = self.getUnitVolume()
     # We'll just do the matrix multiplication by hand...
-    atom.pos.x = (1.0 / a) * atom.pos.x + (-math.cos(gamma) / (a * math.sin(gamma))) * atom.pos.y + \
-                 ((math.cos(alpha) * math.cos(gamma) - math.cos(beta)) / (a * v * math.sin(gamma))) * atom.pos.z
+    v.x = (1.0 / a) * v.x + (-math.cos(gamma) / (a * math.sin(gamma))) * v.y + \
+                 ((math.cos(alpha) * math.cos(gamma) - math.cos(beta)) / (a * vol * math.sin(gamma))) * v.z
 
-    atom.pos.y = (1.0 / (b * math.sin(gamma))) * atom.pos.y + \
-                 ((math.cos(beta) * math.cos(gamma) - math.cos(alpha)) / (b * v * math.sin(gamma))) * atom.pos.z
+    v.y = (1.0 / (b * math.sin(gamma))) * v.y + \
+                 ((math.cos(beta) * math.cos(gamma) - math.cos(alpha)) / (b * vol * math.sin(gamma))) * v.z
 
-    atom.pos.z = (math.sin(gamma) / (c * v)) * atom.pos.z
+    v.z = (math.sin(gamma) / (c * vol)) * v.z
+
+  def convertAtomToFractional(self, atom):
+    self.toFractional(atom.pos)
 
   def convertAtomsToFractional(self):
     if not self.cartesian:
@@ -125,20 +129,23 @@ class Crystal:
       self.convertAtomToFractional(atom)
     self.cartesian = False
 
-  def convertAtomToCartesian(self, atom):
+  def toCartesian(self, v):
     a = self.getA()
     b = self.getB()
     c = self.getC()
     alpha = self.getAlpha()
     beta = self.getBeta()
     gamma = self.getGamma()
-    v = self.getUnitVolume()
+    vol = self.getUnitVolume()
 
     # This is ugly, but we're just gonna do the matrix multiplication by
     # hand.
-    atom.pos.x = a * atom.pos.x + b * math.cos(gamma) * atom.pos.y + c * math.cos(beta) * atom.pos.z
-    atom.pos.y = b * math.sin(gamma) * atom.pos.y + c * (math.cos(alpha) - math.cos(beta) * math.cos(gamma)) / math.sin(gamma) * atom.pos.z
-    atom.pos.z = c * v / math.sin(gamma) * atom.pos.z
+    v.x = a * v.x + b * math.cos(gamma) * v.y + c * math.cos(beta) * v.z
+    v.y = b * math.sin(gamma) * v.y + c * (math.cos(alpha) - math.cos(beta) * math.cos(gamma)) / math.sin(gamma) * v.z
+    v.z = c * vol / math.sin(gamma) * v.z
+
+  def convertAtomToCartesian(self, atom):
+    self.toCartesian(atom.pos)
 
   def convertAtomsToCartesian(self):
     if self.cartesian:
@@ -147,6 +154,37 @@ class Crystal:
     for atom in self.atoms:
       self.convertAtomToCartesian(atom)
     self.cartesian = True
+
+  # This does not edit the parameter. It returns the result.
+  @staticmethod
+  def minimumImageFractional(v):
+    ret = copy.deepcopy(v)
+    ret.x = ret.x - round(ret.x)
+    ret.y = ret.y - round(ret.y)
+    ret.z = ret.z - round(ret.z)
+    return ret
+
+  # This does not edit the parameter. It returns the result.
+  def minimumImage(self, v):
+    ret = copy.deepcopy(v)
+    self.toFractional(ret)
+    ret = self.minimumImageFractional(ret)
+    self.toCartesian(ret)
+    return ret
+
+  def distance(self, atom1, atom2):
+    vec = atom1.pos - atom2.pos
+    if not self.cartesian:
+      self.toCartesian(vec)
+    return abs(self.minimumImage(vec).norm())
+
+  def distances(self):
+    ret = []
+    for i in range(len(self.atoms)):
+      for j in range(i + 1, len(self.atoms)):
+        ret.append((self.atoms[i].symbol, self.atoms[j].symbol,
+                    self.distance(self.atoms[i], self.atoms[j])))
+    return ret
 
   def displayAtoms(self):
     print "\nThe following are the atom positions in the crystal:"
@@ -168,6 +206,12 @@ class Crystal:
     print " Alpha is", self.rad2Deg(self.getAlpha())
     print " Beta is", self.rad2Deg(self.getBeta())
     print " Gamma is", self.rad2Deg(self.getGamma())
+
+  def displayDistances(self):
+    print "\nDistances between atoms:"
+    distances = self.distances()
+    for distance in distances:
+      print distance[0], distance[1], distance[2]
 
   def display(self):
     print "\nTitle of the crystal is: ", self.title
