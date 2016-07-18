@@ -184,6 +184,7 @@ class Crystal:
       for j in range(i + 1, len(self.atoms)):
         ret.append((self.atoms[i].symbol, self.atoms[j].symbol,
                     self.distance(self.atoms[i], self.atoms[j])))
+    ret.sort(key=lambda tup: tup[2])
     return ret
 
   def displayAtoms(self):
