@@ -35,8 +35,12 @@ class Atom:
     self.symbol = symbol
     self.pos = pos
 
-  def display(self):
-    print "  For " + self.symbol + ", coords are: ",
+  def display(self, index = -1):
+    string = "  For " + self.symbol
+    if index != -1:
+      string += " (index of " + str(index) + ")"
+    string += ", coords are: "
+    print string,
     self.pos.display()
 
 
@@ -182,15 +186,15 @@ class Crystal:
     ret = []
     for i in range(len(self.atoms)):
       for j in range(i + 1, len(self.atoms)):
-        ret.append((self.atoms[i].symbol, self.atoms[j].symbol,
+        ret.append((self.atoms[i].symbol, i, self.atoms[j].symbol, j,
                     self.distance(self.atoms[i], self.atoms[j])))
-    ret.sort(key=lambda tup: tup[2])
+    ret.sort(key=lambda tup: tup[4])
     return ret
 
   def displayAtoms(self):
     print "\nThe following are the atom positions in the crystal:"
-    for atom in self.atoms:
-      atom.display()
+    for i in range(len(self.atoms)):
+      self.atoms[i].display(i)
 
   def displayLattice(self):
     print "The lattice is the following:"
@@ -210,9 +214,15 @@ class Crystal:
 
   def displayDistances(self):
     print "\nDistances between atoms:"
+    print "<AtomSymbol1><AtomIndex1> <AtomSymbol2><AtomIndex2>: <Distance>"
     distances = self.distances()
     for distance in distances:
-      print distance[0], distance[1], distance[2]
+      # distance[0] and distance[2] are atomic symbols
+      # distance[1] and distance[3] are atom indices
+      # distance[4] is the distance
+      output = distance[0] + str(distance[1]) + " " + \
+               distance[2] + str(distance[3]) + ": " + str(distance[4])
+      print output
 
   def display(self):
     print "\nTitle of the crystal is: ", self.title
