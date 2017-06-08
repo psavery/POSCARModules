@@ -61,6 +61,9 @@ class Crystal:
   def numAtoms(self):
     return len(self.atoms)
 
+  def getAtoms(self):
+    return self.atoms
+
   # We can do 0 for A, 1 for B, or 2 for C
   def getLenOfLatticeVec(self, ind = int):
     return (self.latticeVecs[ind][0]**2 + self.latticeVecs[ind][1]**2 + self.latticeVecs[ind][2]**2)**(0.5)
