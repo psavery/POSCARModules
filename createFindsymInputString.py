@@ -10,7 +10,7 @@ def createFindsymInputString(crystal, tolerance = float):
   inputStr += "1\n" # This line indicates the form that the lattice params will be entered (i. e., vectors vs lengths & angles)
   for i in range(3): # These lines are the lattice vectors being entered
     for j in range(3):
-      inputStr += str(crystal.latticeVecs[i][j]) + " "
+      inputStr += str(crystal.latticeVecs[i][j] * crystal.scalingFactor) + " "
     inputStr += "\n"
   inputStr += "2\n" # This is the form of the centering to be entered. We're just going to enter "primitive" or "P"
   inputStr += "P\n"
