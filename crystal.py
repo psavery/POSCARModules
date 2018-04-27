@@ -236,3 +236,45 @@ class Crystal:
     self.displayAtoms()
     print "\n",
 
+  # Returns a POSCAR as a string
+  def writePoscar(self):
+    out = self.title.rstrip() + "\n"
+    out += str(self.scalingFactor) + "\n"
+
+    for i in range(3):
+      for j in range(3):
+        out += str(self.latticeVecs[i][j]) + " "
+      out += "\n"
+
+    symbolsList = []
+    for atom in self.atoms:
+      if atom.symbol not in symbolsList:
+        symbolsList.append(atom.symbol)
+
+    for symbol in symbolsList:
+      out += symbol + " "
+    out += "\n"
+
+    counts = []
+    for symbol in symbolsList:
+      count = 0
+      for atom in self.atoms:
+        if symbol == atom.symbol:
+          count += 1
+      counts.append(count)
+
+    for count in counts:
+      out += str(count) + " "
+    out += "\n"
+
+    if self.cartesian:
+      out += "Cartesian\n"
+    else:
+      out += "Direct\n"
+
+    for symbol in symbolsList:
+      for atom in self.atoms:
+        if atom.symbol == symbol:
+          out += atom.pos.getCoordsString(" ") + "\n"
+
+    return out
