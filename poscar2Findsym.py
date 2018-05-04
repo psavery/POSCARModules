@@ -48,7 +48,8 @@ process=subprocess.Popen(['/projects/academic/ezurek/software/findsym/findsym'],
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-stdoutdata,stderrdata=process.communicate(input=inputStr)
+stdoutdata,stderrdata=process.communicate(input=inputStr.encode())
+stdoutdata = stdoutdata.decode()
 
 lines = stdoutdata.splitlines()
 
