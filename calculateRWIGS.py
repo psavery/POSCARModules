@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import sys
@@ -44,14 +44,14 @@ crystal = readPOSCAR.readPOSCAR("POSCAR")
 
 volume = crystal.getVolume()
 
-print '=============================================================='
-print 'Volume of the crystal:', volume
+print('==============================================================')
+print('Volume of the crystal:', volume)
 
 rwigs = readRWIGSFromPOTCAR("POTCAR")
 
-print 'RWIGS read from POTCAR:'
+print('RWIGS read from POTCAR:')
 for key in rwigs:
-  print ' ', key, ':', rwigs[key]
+  print(' ', key, ':', rwigs[key])
 
 atoms = crystal.getAtoms()
 
@@ -61,15 +61,15 @@ for atom in atoms:
     sys.exit('Error: missing RWIG for atom:' + atom.symbol)
   totalAtomVolume += sphereVolume(rwigs[atom.symbol])
 
-print 'Total atom volume is:', totalAtomVolume
+print('Total atom volume is:', totalAtomVolume)
 
 scaleFactor = (volume / totalAtomVolume)**(1./3)
 
-print 'RWIGS scaling factor:', scaleFactor
+print('RWIGS scaling factor:', scaleFactor)
 
-print 'Final RWIGS values:'
+print('Final RWIGS values:')
 for key in rwigs:
   rwigs[key] *= scaleFactor
-  print ' ', key, ':', rwigs[key]
+  print(' ', key, ':', rwigs[key])
 
-print '=============================================================='
+print('==============================================================')

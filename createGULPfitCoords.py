@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Author -- Patrick Avery -- 2016
 
@@ -71,4 +71,4 @@ for root, dirs, files in os.walk('.'):
     # The 100.0 is a weighting factor. Not sure if it's actually needed...
     coords += (str(energy) + '  100.0\n')
     coords += 'end\n\n'
-    print coords
+    print(coords)

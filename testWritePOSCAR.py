@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from crystal import Crystal
 from readPOSCAR import readPOSCAR

@@ -28,7 +28,7 @@ class Vector3d:
     return str(self.x) + delim + str(self.y) + delim + str(self.z)
 
   def display(self):
-    print "(" + self.getCoordsString() + ")"
+    print("(" + self.getCoordsString() + ")")
 
 class Atom:
   def __init__(self, symbol = str, pos = Vector3d):
@@ -40,7 +40,7 @@ class Atom:
     if index != -1:
       string += " (index of " + str(index) + ")"
     string += ", coords are: "
-    print string,
+    print(string, end=' ')
     self.pos.display()
 
 
@@ -130,7 +130,7 @@ class Crystal:
 
   def convertAtomsToFractional(self):
     if not self.cartesian:
-      print "convertAtomsToFractional() was called, but the coordinates are already fractional! Returning..."
+      print("convertAtomsToFractional() was called, but the coordinates are already fractional! Returning...")
       return
     for atom in self.atoms:
       self.convertAtomToFractional(atom)
@@ -156,7 +156,7 @@ class Crystal:
 
   def convertAtomsToCartesian(self):
     if self.cartesian:
-      print "convertAtomsToCartesian() was called, but the coordinates are already cartesian! Returning..."
+      print("convertAtomsToCartesian() was called, but the coordinates are already cartesian! Returning...")
       return
     for atom in self.atoms:
       self.convertAtomToCartesian(atom)
@@ -195,29 +195,29 @@ class Crystal:
     return ret
 
   def displayAtoms(self):
-    print "\nThe following are the atom positions in the crystal:"
+    print("\nThe following are the atom positions in the crystal:")
     for i in range(len(self.atoms)):
       self.atoms[i].display(i)
 
   def displayLattice(self):
-    print "The lattice is the following:"
+    print("The lattice is the following:")
     for i in range(3):
       for j in range(3):
-        print self.latticeVecs[i][j],
-      print "\n",
+        print(self.latticeVecs[i][j], end=' ')
+      print("\n", end=' ')
 
   def displayLatticeInfo(self):
-    print "The lattice info is the following:"
-    print " A is", self.getA()
-    print " B is", self.getB()
-    print " C is", self.getC()
-    print " Alpha is", self.rad2Deg(self.getAlpha())
-    print " Beta is", self.rad2Deg(self.getBeta())
-    print " Gamma is", self.rad2Deg(self.getGamma())
+    print("The lattice info is the following:")
+    print(" A is", self.getA())
+    print(" B is", self.getB())
+    print(" C is", self.getC())
+    print(" Alpha is", self.rad2Deg(self.getAlpha()))
+    print(" Beta is", self.rad2Deg(self.getBeta()))
+    print(" Gamma is", self.rad2Deg(self.getGamma()))
 
   def displayDistances(self):
-    print "\nDistances between atoms:"
-    print "<AtomSymbol1><AtomIndex1> <AtomSymbol2><AtomIndex2>: <Distance>"
+    print("\nDistances between atoms:")
+    print("<AtomSymbol1><AtomIndex1> <AtomSymbol2><AtomIndex2>: <Distance>")
     distances = self.distances()
     for distance in distances:
       # distance[0] and distance[2] are atomic symbols
@@ -225,16 +225,16 @@ class Crystal:
       # distance[4] is the distance
       output = distance[0] + str(distance[1]) + " " + \
                distance[2] + str(distance[3]) + ": " + str(distance[4])
-      print output
+      print(output)
 
   def display(self):
-    print "\nTitle of the crystal is: ", self.title
-    print "Scaling factor is: ", self.scalingFactor
-    print "Cartesian is: " , self.cartesian
+    print("\nTitle of the crystal is: ", self.title)
+    print("Scaling factor is: ", self.scalingFactor)
+    print("Cartesian is: " , self.cartesian)
     self.displayLattice()
-    print "Volume is: ", self.getVolume()
+    print("Volume is: ", self.getVolume())
     self.displayAtoms()
-    print "\n",
+    print("\n", end=' ')
 
   # Returns a POSCAR as a string
   def writePoscar(self):

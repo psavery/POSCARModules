@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # Author -- Patrick S. Avery -- 2016
 
@@ -15,20 +15,20 @@ from readPOSCAR import *
 from spgNumToLatticeSymbol import *
 
 if len(sys.argv) == 1:
-  print "Error: please enter the name of the POSCAR to be read after",
-  print "the name of this executable.\nTolerance may be entered as an",
-  print "argument after the name of the POSCAR\n"
+  print("Error: please enter the name of the POSCAR to be read after", end=' ')
+  print("the name of this executable.\nTolerance may be entered as an", end=' ')
+  print("argument after the name of the POSCAR\n")
   sys.exit()
 
 tol = 0
 if len(sys.argv) == 2:
-  print "Tolerance was not specified. Setting the tolerance to 0.001"
-  print "You may specify the tolerance after the name of the POSCAR"
+  print("Tolerance was not specified. Setting the tolerance to 0.001")
+  print("You may specify the tolerance after the name of the POSCAR")
   tol = 0.001
 
 if len(sys.argv) > 2:
   tol = float(sys.argv[2])
-  print "Tolerance is: ", tol
+  print("Tolerance is: ", tol)
 
 # Add the ISODATA variable to our path. This is required for findsym to work
 os.environ["ISODATA"]="/projects/academic/ezurek/software/findsym/"
@@ -36,7 +36,7 @@ os.environ["ISODATA"]="/projects/academic/ezurek/software/findsym/"
 crys = readPOSCAR(sys.argv[1])
 
 if crys.cartesian:
-  print "Coords are in cartesian. Converting them to fractional..."
+  print("Coords are in cartesian. Converting them to fractional...")
   crys.convertAtomsToFractional()
 
 inputStr = createFindsymInputString(crys, tol)
@@ -72,12 +72,12 @@ if centering == 'R' and numAtomsInCell % 3 == 0:
 
 pearsonSymbol = latticeSymbol + centering + str(numAtomsInCell)
 
-print "\n"
-print "******* FINDSYM OUTPUT *******\n"
-print stdoutdata
-print "******* END OF FINDSYM OUTPUT *******\n"
+print("\n")
+print("******* FINDSYM OUTPUT *******\n")
+print(stdoutdata)
+print("******* END OF FINDSYM OUTPUT *******\n")
 
-print "Tolerance is", tol, "\n(you may change the tolerance by inputting it after the name of the POSCAR)\n"
-print "Pearson symbol:", pearsonSymbol, '\n'
-print spgStr, '\n'
+print("Tolerance is", tol, "\n(you may change the tolerance by inputting it after the name of the POSCAR)\n")
+print("Pearson symbol:", pearsonSymbol, '\n')
+print(spgStr, '\n')
 os.system("rm findsym.log")
