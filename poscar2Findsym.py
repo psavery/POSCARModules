@@ -14,71 +14,83 @@ from createFindsymInputString import *
 from readPOSCAR import *
 from spgNumToLatticeSymbol import *
 
-if len(sys.argv) == 1:
-  print("Error: please enter the name of the POSCAR to be read after", end=' ')
-  print("the name of this executable.\nTolerance may be entered as an", end=' ')
-  print("argument after the name of the POSCAR\n")
-  sys.exit()
+def crystal2Findsym(crys, tolerance):
+  crystal = crys
+  if crystal.cartesian:
+    print("Coords are in cartesian. Converting them to fractional...")
+    crystal.convertAtomsToFractional()
 
-tol = 0
-if len(sys.argv) == 2:
-  print("Tolerance was not specified. Setting the tolerance to 0.001")
-  print("You may specify the tolerance after the name of the POSCAR")
-  tol = 0.001
+  inputStr = createFindsymInputString(crystal, tolerance)
+  #print "\n"
+  #print inputStr
 
-if len(sys.argv) > 2:
-  tol = float(sys.argv[2])
-  print("Tolerance is: ", tol)
+  # Open up findsym as a subprocess
+  process=subprocess.Popen(['/projects/academic/ezurek/software/findsym/findsym'],
+                           stdin=subprocess.PIPE,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+  stdoutdata,stderrdata=process.communicate(input=inputStr.encode())
+  stdoutdata = stdoutdata.decode()
 
-# Add the ISODATA variable to our path. This is required for findsym to work
-os.environ["ISODATA"]="/projects/academic/ezurek/software/findsym/"
+  lines = stdoutdata.splitlines()
 
-crys = readPOSCAR(sys.argv[1])
+  spgStr = ''
+  spgNum = 0
+  centering = ''
+  numAtomsInCell = 0
+  for i, line in enumerate(lines):
+    if "Space Group" in line:
+      spgStr = line
+      spgNum = spgStr.split()[2].strip()
+      centering = line.split()[4].strip()[0]
 
-if crys.cartesian:
-  print("Coords are in cartesian. Converting them to fractional...")
-  crys.convertAtomsToFractional()
+    if '_atom_site_occupancy' in line:
+      numAtomsInCell = 0
+      for j in range(i + 1, len(lines) - 1):
+        numAtomsInCell += int(lines[j].split()[2])
 
-inputStr = createFindsymInputString(crys, tol)
-#print "\n"
-#print inputStr
+  latticeSymbol = spgNumToLatticeSymbol(int(spgNum))
 
-# Open up findsym as a subprocess
-process=subprocess.Popen(['/projects/academic/ezurek/software/findsym/findsym'],
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-stdoutdata,stderrdata=process.communicate(input=inputStr.encode())
-stdoutdata = stdoutdata.decode()
+  # If the centering is 'R', we always end up with 3* the number of atoms
+  # for some reason. So reduce it.
+  if centering == 'R' and numAtomsInCell % 3 == 0:
+    numAtomsInCell /= 3
 
-lines = stdoutdata.splitlines()
+  pearsonSymbol = latticeSymbol + centering + str(numAtomsInCell)
 
-for i, line in enumerate(lines):
-  if "Space Group" in line:
-    spgStr = line
-    spgNum = spgStr.split()[2].strip()
-    centering = line.split()[4].strip()[0]
+  return spgNum, spgStr, centering, stdoutdata
 
-  if '_atom_site_occupancy' in line:
-    numAtomsInCell = 0
-    for j in range(i + 1, len(lines) - 1):
-      numAtomsInCell += int(lines[j].split()[2])
 
-latticeSymbol = spgNumToLatticeSymbol(int(spgNum))
+if __name__ == '__main__':
+  if len(sys.argv) == 1:
+    print("Error: please enter the name of the POSCAR to be read after", end=' ')
+    print("the name of this executable.\nTolerance may be entered as an", end=' ')
+    print("argument after the name of the POSCAR\n")
+    sys.exit()
 
-# If the centering is 'R', we always end up with 3* the number of atoms
-# for some reason. So reduce it.
-if centering == 'R' and numAtomsInCell % 3 == 0:
-  numAtomsInCell /= 3
+  tol = 0
+  if len(sys.argv) == 2:
+    print("Tolerance was not specified. Setting the tolerance to 0.001")
+    print("You may specify the tolerance after the name of the POSCAR")
+    tol = 0.001
 
-pearsonSymbol = latticeSymbol + centering + str(numAtomsInCell)
+  if len(sys.argv) > 2:
+    tol = float(sys.argv[2])
+    print("Tolerance is: ", tol)
 
-print("\n")
-print("******* FINDSYM OUTPUT *******\n")
-print(stdoutdata)
-print("******* END OF FINDSYM OUTPUT *******\n")
+  # Add the ISODATA variable to our path. This is required for findsym to work
+  os.environ["ISODATA"]="/projects/academic/ezurek/software/findsym/"
 
-print("Tolerance is", tol, "\n(you may change the tolerance by inputting it after the name of the POSCAR)\n")
-print("Pearson symbol:", pearsonSymbol, '\n')
-print(spgStr, '\n')
-os.system("rm findsym.log")
+  crys = readPOSCAR(sys.argv[1])
+
+  spgNum, spgStr, pearsonSymbol, stdoutdata = crystal2Findsym(crys, tol)
+
+  print("\n")
+  print("******* FINDSYM OUTPUT *******\n")
+  print(stdoutdata)
+  print("******* END OF FINDSYM OUTPUT *******\n")
+
+  print("Tolerance is", tol, "\n(you may change the tolerance by inputting it after the name of the POSCAR)\n")
+  print("Pearson symbol:", pearsonSymbol, '\n')
+  print(spgStr, '\n')
+  os.system("rm findsym.log")
